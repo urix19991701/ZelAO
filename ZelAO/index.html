@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<div class="container-fluid">
+    <nav role="navigation" class="navbar navbar-inverse">
+			<span class="col-lg-12 textBar">
+        <h1>Журнал заявок: ЗелАО Крюково</h1>
+        <p>От Юры с любовью!</p>
+      </span>
+    </nav>
+		<div class="butbar">
+			<button type="button" class="btn btn-info butbar" data-toggle="modal" data-target="#exampleModalCenter">
+				<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+		  		<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+		  		<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+				</svg> Создать заявку
+			</button>
+		</div>
+		<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-centered" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLongTitle">Создаем заявку...</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+						<h4>Заполните данные</h4>
+							<form method="POST">
+								<p>Адрес заказчика<font class="text-danger">*</font>:<br> 
+									<input class="form-control" type="text" name="clientAddress " /></p>
+								<p>Ф.И.О. Заказчика<font class="text-danger">*</font>: <br> 
+									<input class="form-control" type="text" name="clienName" /></p>
+								<p>Наименование услуги:<br> 
+									<input class="form-control" type="text" name="services" /></p>
+								<p>Номер телефона<font class="text-danger">*</font>: <br> 
+									<input class="form-control" type="text" name="phone" /></p>
+								<p>Дата выполнения работы: <br> 
+									<input class="form-control" type="date" name="dateServices" /></p>
+								<p>Ф.И.О. работника: <br> 
+									<input class="form-control" type="text" name="workingName" /></p>
+								<p>Примечания:<br> 
+									<textarea class="form-control" name="comment" rows="3"></textarea>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+		        <button type="submit" class="btn btn-primary">Сохранить заявку</button>
+		      </div>
+							</form>
+		      </div>
+		    </div>
+		  </div></div>
+	</div>
+
+	<?php
+		$host = 'localhost';  // Хост, у нас все локально
+    $user = 'root';    // Имя созданного вами пользователя
+    $pass = ''; // Установленный вами пароль пользователю
+    $db_name = 'zelao.zaiavki';   // Имя базы данных
+    $link = mysqli_connect($host, $user, $pass, $db_name); // Соединяемся с базой
+
+    // Ругаемся, если соединение установить не удалось
+    if (!$link) {
+      echo 'Не могу соединиться с БД. Код ошибки: ' . mysqli_connect_errno() . ', ошибка: ' . mysqli_connect_error();
+      exit;
+    }
+
+    if (isset($_POST["clientAddress "]) && $_POST["clientAddress "] !== "" && $_POST["clienName"] !== "" && $_POST["phone"] !== "") {
+        $sql = mysqli_query($link, "INSERT INTO `zaiavki` (`receiptDate`,`clientAddress `, `clienName`, `services`, `phone`, `dateServices`,`workingName`, `comment`) 
+        										VALUES (CURRENT_DATE() ,'{$_POST['clientAddress ']}', '{$_POST['clienName']}', '{$_POST['services']}', '{$_POST['phone']}', '{$_POST['dateServices']}', '{$_POST['workingName']}', '{$_POST['comment']}')");
+      
+
+      //Если вставка прошла успешно
+      if ($sql) {
+        $new_url = 'index.php';
+				header('Location: '.$new_url);
+      } else {
+        echo '<p>Произошла ошибка: ' . mysqli_error($link) . '</p>';
+      }
+    }
+
+		$query ="SELECT * FROM zaiavki";
+		$result = mysqli_query($link, $query) or die("Ошибка " . mysqli_error($link)); 
+		if($result)
+		{
+	    $rows = mysqli_num_rows($result); // количество полученных строк
+	     
+	    echo "<table cellpadding='0' cellspacing='0' border='0' id='table' class='table table-striped'>
+	    <thead>
+	    	<tr>
+	    		<th><h6>№Заявки</h6></th>
+	    		<th><h6>Дата поступления</h6></th>
+	    		<th><h6>Адрес клиента</h6></th>
+	    		<th><h6>Имя клиента</h6></th>
+	    		<th><h6>Работа</h6></th>
+	    		<th><h6>Телефон</h6></th>
+	    		<th><h6>Дата работы</h6></th>
+	    		<th><h6>Имя рабочего</h6></th>
+	    		<th><h6>Примечания</h6></th>
+	    	</tr>
+	    </thead><tbody>";
+
+	    for ($i = 0 ; $i < $rows ; ++$i)
+	    {
+	        $row = mysqli_fetch_row($result);
+	        echo "<tr>";
+	            for ($j = 0 ; $j < 9 ; ++$j) echo "<td>$row[$j]</td>";
+	        echo "</tr>";
+	    }
+	    echo "</tbody></table>";
+	     
+	    // очищаем результат
+	    mysqli_free_result($result);
+		}
+
+		mysqli_close($link);
+?>
+
+	<div id="controls">
+		<div id="perpage">
+			<select onchange="sorter.size(this.value)">
+			<option value="5">5</option>
+				<option value="10">10</option>
+				<option value="20" selected="selected">20</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</select>
+			<span>Элементов на странице</span>
+		</div>
+		<div id="navigation">
+			<img src="images/first.png" width="16" height="16" alt="First Page" onclick="sorter.move(-1,true)" />
+			<img src="images/previous.png" width="16" height="16" alt="First Page" onclick="sorter.move(-1)" />
+			<img src="images/next.png" width="16" height="16" alt="First Page" onclick="sorter.move(1)" />
+			<img src="images/last.png" width="16" height="16" alt="Last Page" onclick="sorter.move(1,true)" />
+		</div>
+		<div id="text">Страница <span id="currentpage"></span> из <span id="pagelimit"></span></div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="assets/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="script.js"></script>
+	<script type="text/javascript">
+  var sorter = new TINY.table.sorter("sorter");
+	sorter.head = "head";
+	sorter.asc = "asc";
+	sorter.desc = "desc";
+	sorter.even = "evenrow";
+	sorter.odd = "oddrow";
+	sorter.evensel = "evenselected";
+	sorter.oddsel = "oddselected";
+	sorter.paginate = true;
+	sorter.currentid = "currentpage";
+	sorter.limitid = "pagelimit";
+	sorter.init("table",0);
+  </script>
+
+</body>
+</html>
